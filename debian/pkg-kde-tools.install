@@ -5,12 +5,13 @@ usr/bin/dh_sodeps
 usr/bin/pkgkde-debs2symbols
 usr/bin/pkgkde-gensymbols
 usr/bin/pkgkde-getbuildlogs
+usr/bin/pkgkde-getqmldepends
 usr/bin/pkgkde-git
 usr/bin/pkgkde-mark-qt5-private-symbols
 usr/bin/pkgkde-override-sc-dev-latest
 usr/bin/pkgkde-symbolshelper
-usr/bin/pkgkde-vcs
 usr/bin/pkgkde-update-qt-copyright
+usr/bin/pkgkde-vcs
 usr/share/man/man1/dh_movelibkdeinit.1
 usr/share/man/man1/dh_qmlcdeps.1
 usr/share/man/man1/dh_sameversiondep.1

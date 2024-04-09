@@ -1,1 +1,2 @@
 pkg-kde-tools: capitalization-error-in-description kde KDE
+pkg-kde-tools: package-contains-documentation-outside-usr-share-doc [usr/share/pkg-kde-tools/qt-kde-team*/README]
