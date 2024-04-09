@@ -1,3 +1,44 @@
+pkg-kde-tools (0.17.1) unstable; urgency=medium
+
+  * pkgkde-symbolshelper: Update ABI definition for time_t subst.
+  * Build-depend on dpkg-dev ≥ 1.22.5, to guard against backports without
+    this change reverted.
+  * Bump Standards-Version to 4.6.2, no changes needed.
+  * Upload to unstable.
+
+ -- Dmitry Shachnev <mitya57@debian.org>  Wed, 20 Mar 2024 20:13:29 +0300
+
+pkg-kde-tools (0.17.0) experimental; urgency=medium
+
+  [ Patrick Franz ]
+  * Add the KF6 sequencer helper.
+
+ -- Patrick Franz <deltaone@debian.org>  Tue, 13 Feb 2024 17:38:57 +0100
+
+pkg-kde-tools (0.16.0~qmldepends1) experimental; urgency=medium
+
+  * Team upload.
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster (oldstable):
+    + Build-Depends: Drop versioned constraint on cmake and libdpkg-perl.
+    + pkg-kde-tools: Drop versioned constraint on libdpkg-perl and python3 in
+      Depends.
+    + pkg-kde-tools: Drop versioned constraint on dpkg-dev in Recommends.
+    + pkg-kde-tools: Drop versioned constraint on kdelibs5-dev in Breaks.
+
+  [ Sandro Knauß ]
+  * Add pkgkde-qmldepends to detect QML depdendecy and make them usable in
+    builds. Currently it is the the first version to make it possible to start
+    experiments with the script.
+  * Update lintian overrides for pkg-kde-tools.
+
+  [ Dmitry Shachnev ]
+  * pkgkde-update-qt-copyright: Update for new Qt license strings
+  * pkgkde-update-qt-copyright: Support more exotic copyright strings
+
+ -- Sandro Knauß <hefee@debian.org>  Sat, 02 Sep 2023 00:42:12 +0200
+
 pkg-kde-tools (0.15.38) unstable; urgency=medium
 
   * Remove inactive Uploaders.

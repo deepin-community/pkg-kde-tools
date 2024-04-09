@@ -335,6 +335,7 @@ package Debian::PkgKde::SymbolsHelper::Substs::TypeSubst::time_t;
 use strict;
 use warnings;
 use base 'Debian::PkgKde::SymbolsHelper::Substs::TypeSubst';
+use Dpkg::Arch qw(debarch_to_abiattrs);
 
 sub new {
     my $class = shift;
@@ -346,8 +347,9 @@ sub new {
 
 sub _expand {
     my ($self, $arch) = @_;
-    # see bits/types.h and bits/typesizes.h, long everywhere, except in x32
-    return ($arch =~ /^(x32)$/) ? 'x' : 'l';
+    my ($bits, $endian) = debarch_to_abiattrs($arch);
+    # long long on 32-bit architectures except i386, long on other architectures
+    return ($bits == 32 && $arch !~ /^(hurd-|kfreebsd-)?i386$/) ? 'x' : 'l';
 }
 
 package Debian::PkgKde::SymbolsHelper::Substs::TypeSubst;

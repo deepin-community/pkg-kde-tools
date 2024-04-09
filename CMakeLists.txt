@@ -75,6 +75,7 @@ install(PROGRAMS
     pkgkde-debs2symbols
     pkgkde-gensymbols
     pkgkde-getbuildlogs
+    pkgkde-getqmldepends
     pkgkde-mark-qt5-private-symbols
     pkgkde-override-sc-dev-latest
     pkgkde-symbolshelper

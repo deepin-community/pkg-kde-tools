@@ -1,0 +1,314 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2023 Sandro Knauß <hefee@debian.org>
+# SPDX-License-Identifier: LGPL-2.0-or-later
+
+"""
+Gives a list of Debian qml packages that are needed as dependency.
+This script should become a dh_helper script.
+
+The needed qml packages need to be installed on the system, otherwise the
+dependency is not detected and you will see:
+
+Missing QML module XXX
+
+The arguments are the arguments for qmlimportscanner.
+
+Sample execution:
+
+pkgkde-getqmldepends --qt 5 -- -qrcFiles PATHTO/itinerary-23.04.2/src/app/qml.qrc
+"""
+
+import argparse
+import collections
+from dataclasses import dataclass
+import json
+import logging
+import os
+import pathlib
+import re
+import subprocess
+import sys
+import yaml
+
+from debian import deb822
+from debian.debian_support import Version
+
+logging.basicConfig(format='%(levelname).1s: dh_qmldeps '
+                           '%(module)s:%(lineno)d: %(message)s')
+log = logging.getLogger('dh_qmldeps')
+
+PATHS = [pathlib.Path(__file__).parent/"datalib",
+         pathlib.Path('/usr/share/pkg-kde-tools/lib')
+        ]
+
+@dataclass
+class QtConfig:
+    version: str
+    qmlimportscanner: str
+    basepath: str
+
+    @property
+    def substvar_basename(self):
+        return f"qml{self.version}"
+
+    def substvar_name(self, name):
+        return f"{self.substvar_basename}:{name}"
+
+def get_config():
+    for path in PATHS:
+        config_name = "qt_version_info.yml"
+        p = path/config_name
+        if p.exists():
+            c = yaml.load(p.read_text(), yaml.BaseLoader)
+            for qt_version in c:
+                c[qt_version] = QtConfig(version=qt_version,**c[qt_version])
+            return c
+
+    raise FileNotFoundError(f"Did't find '{config_name}' in {PATHS}")
+
+
+class DebianControl:
+    def __init__(self, path):
+        self.path = path
+
+        self.read_path(path)
+
+    def read_path(self, path):
+        self.source = None
+        self.packages = {}
+        with path.open() as cl:
+            for block in deb822.Deb822.iter_paragraphs(cl):
+                if block.get("Source"):
+                    self.source = block
+                else:
+                    self.packages[block.get("Package")] = block
+
+    def isSinglePackage(self):
+        return len(self.packages) == 1
+
+
+def set_substvar(path:pathlib.Path, substvars: dict):
+    """ handles a debian/substvars file.
+
+        path: path to substvars file.
+        substsvars: is a dict to set key,value in the substvars file.
+    """
+    data = ''
+    if path.exists():
+        data = path.read_text()
+
+    for name, values in substvars.items():
+        p = data.find(f"{name}=")
+        items = set()
+        if p > -1:
+            e = data[p:].find('\n')
+            line = data[p + len(f"{name}="):p + e if e > -1 else None]
+            items = set(i.strip() for i in line.split(',') if i)
+        else:
+            p = len(data)
+            e = -1
+
+        _modified = False
+        if values - items:
+            items |= values
+
+            new_line = ",".join(sorted(items))
+            start = data[:p]
+            end = ""
+            if e > -1:
+                end = data[p + e:]
+
+            data = start
+
+            if data:
+                data += "\n"
+
+            data += f"{name}={new_line}\n"
+
+            if end.strip():
+                data += end
+
+    data = data.replace('\n\n', '\n')
+    if data:
+        path.write_text(data)
+
+
+def iter_part_over_version(part: str, version: str):
+    """ iter over version variants.
+
+    >>> gen = iter_part_over_version("test", "1.2")
+    >>> list(gen)
+    ["test.1.2",
+     "test.1",
+     "test"
+    ]
+    """
+    pos = None
+
+    v = version
+    while pos != -1:
+        v = v[:pos]
+        pos = v.rfind(".")
+        yield f"{part}.{v}"
+    yield part
+
+def iter_tail(parts: list, version: str):
+    """iter over all version parants of the tail part of the parts.
+
+    >>> gen = iter_tail(["a","b"], "1")
+    >>> list(gen)
+    [["a.1","b.1],
+     ["a.1", "b"],
+     ["a", "b.1"],
+     ["a", "b"]
+    ]
+    """
+
+    item = parts[0]
+    tail = parts[1:]
+    for i in iter_part_over_version(item, version):
+        if tail:
+            for t in iter_tail(tail, version):
+                yield[i, *t]
+        else:
+            yield [i,]
+
+
+@dataclass
+class QMLModule:
+    name: str
+    relpath: str
+    debian_pkg: str
+
+
+class QMLModules:
+    def __init__(self, base_path: pathlib.Path):
+        self.base_path = base_path
+        self._fill_modules()
+
+    def _fill_modules(self):
+        modules = collections.defaultdict(dict)
+        output = subprocess.check_output(["dpkg-query", "-S", self.base_path/"**/qmldir"], text=True)
+        for line in output.splitlines():
+            package, *_ ,path = line.split(":")
+            path = pathlib.Path(path.strip())
+            name = self._qmlname(path)
+            module = QMLModule(name, self._relpath(path), package)
+            modules[module.name][module.relpath] = module
+        self.modules = dict(modules)
+
+    def _relpath(self, path: pathlib.Path):
+        """strip self.basepath from path and remove the qmldir at the end."""
+        parts = path.parts
+        start = len(self.base_path.parts)
+        end = -1 if parts[-1] == "qmldir" else None
+        return "/".join(parts[start:end])
+
+    def _qmlname(self, path: pathlib.Path):
+        """tranlate a path to QML name.
+
+        e.g. /usr/lib/x86_64-linux-gnu/qt5/qml/org/kde/kirigami.2/templates/qmldir
+             -> "org.kde.kirigami.templates"
+        """
+        relpath = self._relpath(path)
+        name = re.sub(r"(\.[0-9])+(/|$)",r"\g<2>", relpath)
+        return name.replace("/",".")
+
+    def best_matching_module(self, module_name:str, version: str):
+        """the best matching QML module for a specific version.
+
+        QML Modules can be installed in different versions e.g.
+
+        QtQuick.Controls 2.X -> .../qml/QtQuick/Controls.2
+        QtQuick.Controls 1.X -> .../qml/QtQuick/Controls
+
+        but there is also KDE Kirigami, that does do the version different:
+
+        org.kde.kirigami.templates 2.X .../kirigami.2/templates
+
+        implements "the selection of different versions of a module in
+        subdirectories of its own":
+
+        https://doc.qt.io/qt-6/qtqml-modules-identifiedmodules.html#locally-installed-identified-modules
+
+        """
+        module_variants = self.modules[module_name]
+        if len(module_variants) == 1:
+               return next(iter(module_variants.values()))
+
+        best_matching_module_path = next(i for i in iter_tail(module_name.split("."), version) if "/".join(i) in module_variants)
+        return module_variants["/".join(best_matching_module_path)]
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-v', '--verbose', action='store_true',
+        default=os.environ.get('DH_VERBOSE') == '1',
+        help='turn verbose mode on')
+    parser.add_argument(
+        '--qt',
+        default="5",
+        help='choose QT version')
+    parser.add_argument(
+        'qis', nargs='+',
+        help="arguments for qmlimportscanner.")
+
+    options = parser.parse_args()
+
+    if options.verbose:
+        log.setLevel(logging.DEBUG)
+        log.debug('argv: %s', sys.argv)
+        log.debug('options: %s', options)
+    else:
+        log.setLevel(logging.INFO)
+
+    config = get_config()
+    config_qt = config[options.qt]
+    qml_modules = QMLModules(pathlib.Path(config_qt.basepath))
+
+    output = subprocess.check_output([config_qt.qmlimportscanner, *options.qis])
+
+    pkgs = set()
+
+    for dep in json.loads(output):
+        if dep["type"] != "module":
+            continue
+        name = dep.get("name")
+        version = dep.get("version")
+
+        try:
+            module = qml_modules.best_matching_module(name, version)
+        except KeyError:
+            log.warning(f"Missing QML module {name}")
+        else:
+            pkgs.add(module.debian_pkg)
+
+    try:
+        dc = DebianControl(pathlib.Path("debian/control"))
+        if dc.isSinglePackage():
+            pkg_name = next(iter(dc.packages.keys()))
+        else:
+            pkg_name = None
+    except FileNotFoundError:
+        pkg_name = None
+
+
+    if pkg_name:
+        pkgs -= set([pkg_name,])
+        pkg = dc.packages[pkg_name]
+        var_name = config_qt.substvar_name("Depends")
+        var = f"${{{var_name}}}"
+        if not var in pkg.get("Depends", "") and not var in pkg.get("Recomments", ""):
+               log.info(f"cannot insert qml dependency (missing {var} in Depends/Recommends")
+
+        data = {var_name: pkgs}
+        substvars_path = pathlib.Path(f"debian/{pkg_name}.substvars")
+        log.debug(f"{substvars_path}: add {data}")
+        set_substvar(substvars_path, data)
+    else:
+        print("depends on:")
+        print(", ".join(sorted(pkgs)))
+
+if __name__ == '__main__':
+    main()
