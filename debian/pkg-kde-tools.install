@@ -1,5 +1,6 @@
 usr/bin/dh_movelibkdeinit
 usr/bin/dh_qmlcdeps
+usr/bin/dh_qmldeps
 usr/bin/dh_sameversiondep
 usr/bin/dh_sodeps
 usr/bin/pkgkde-debs2symbols

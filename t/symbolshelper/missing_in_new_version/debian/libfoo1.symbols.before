@@ -1,0 +1,4 @@
+# SymbolsHelper-Confirmed: 0.1 amd64
+libfoo.so.1 libfoo1 #MINVER#
+ _Z3barv 0.1
+ _Z3foov 0.1

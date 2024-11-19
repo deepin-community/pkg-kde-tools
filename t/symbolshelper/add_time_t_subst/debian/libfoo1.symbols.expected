@@ -1,0 +1,3 @@
+# SymbolsHelper-Confirmed: 1.0 amd64 armhf i386
+libfoo.so.1 libfoo1 #MINVER#
+ (subst)_Z3foo{time_t} 1.0
