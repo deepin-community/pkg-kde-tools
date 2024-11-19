@@ -420,7 +420,12 @@ sub detect {
     my ($s2, $t2);
 
     # Find architecture with other type
-    foreach my $a2 (keys %$arch_rawnames) {
+    my @keys = keys %$arch_rawnames;
+    # Reorder the keys so *-i386 architectures come first. They are the only architectures
+    # where the results of int64_t and time_t substitutions differ, so we must look there
+    # to decide which of them to use.
+    @keys = (grep(/^(hurd-|kfreebsd-)?i386$/, @keys), grep(!/^(hurd-|kfreebsd-)?i386$/, @keys));
+    foreach my $a2 (@keys) {
 	$t2 = $self->expand($a2);
 	if ($t2 ne $t1) {
 	    $s2 = $arch_rawnames->{$a2};
@@ -439,12 +444,7 @@ sub detect {
 	    if ($rawname->has_string2() &&
 	        (my $char = $rawname->get_string2_char($pos)))
 	    {
-		if ($char eq $self->{substvar}) {
-		    # Nothing to do
-		    $ret = 1;
-		    $pos += $l-1;
-		    next search_next;
-		} elsif ($char =~ /^{(.*)}$/) {
+		if ($char ne $self->{substvar} && $char =~ /^{(.*)}$/) {
 		    # Another subst. Verify it
 		    # NOTE: %SUBSTS might not work here due to recursive "use"
 		    my $othersubst = $Debian::PkgKde::SymbolsHelper::Substs::SUBSTS{$1};

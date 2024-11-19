@@ -1,0 +1,3 @@
+# SymbolsHelper-Confirmed: 1.0 amd64 i386
+libfoo.so.1 libfoo1 #MINVER#
+ _Z3fool 1.0
