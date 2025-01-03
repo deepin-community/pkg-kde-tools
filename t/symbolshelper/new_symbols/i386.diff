@@ -1,0 +1,7 @@
+--- debian/libfoo1.symbols (libfoo1_1.0_i386)
++++ dpkg-gensymbols
+@@ -1,2 +1,4 @@
+ libfoo.so.1 libfoo1 #MINVER#
++ _Z3barj 1.0
++ _Z3bazj 1.0
+  _Z3fooj 0.1

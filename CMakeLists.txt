@@ -63,12 +63,18 @@ install(DIRECTORY perllib/
 install(PROGRAMS
     dh_movelibkdeinit
     dh_qmlcdeps
+    dh_qmldeps
     dh_sameversiondep
     dh_sodeps
     DESTINATION ${BIN_INSTALL_DIR}
     COMPONENT Programs
 )
 install_pod_manpages(1 dh_movelibkdeinit dh_qmlcdeps dh_sameversiondep dh_sodeps)
+
+# Install pkgkde pythonlib
+install(DIRECTORY pythonlib/
+    DESTINATION ${DATA_INSTALL_DIR}/pythonlib
+    COMPONENT Programs)
 
 # Install pkgkde binaries
 install(PROGRAMS

@@ -1,0 +1,3 @@
+# SymbolsHelper-Confirmed: 0.1 amd64 i386
+libfoo.so.1 libfoo1 #MINVER#
+ (subst)_Z3foo{size_t} 0.1

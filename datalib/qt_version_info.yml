@@ -1,7 +1,7 @@
 ---
 5:
   qmlimportscanner: /usr/lib/qt5/bin/qmlimportscanner
-  basepath: /usr/lib/*/qt5/qml
+  basepath: /usr/lib/{DEB_HOST_MULTIARCH}/qt5/qml
 6:
   qmlimportscanner: /usr/lib/qt6/libexec/qmlimportscanner
-  basepath: /usr/lib/*/qt6/qml
+  basepath: /usr/lib/{DEB_HOST_MULTIARCH}/qt6/qml

@@ -1,3 +1,163 @@
+pkg-kde-tools (0.18.12) unstable; urgency=medium
+
+  [ Sandro Knauß ]
+  * Allow usage of ${DEB_HOST_MULTIARCH} in qmlfiles.
+
+ -- Sandro Knauß <hefee@debian.org>  Tue, 24 Dec 2024 18:28:04 +0100
+
+pkg-kde-tools (0.18.11) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Improve architecture handling in dh_qmldeps (Closes: #1090054):
+    + Fix build vs host confusion.
+    + Speed up architecture detection using environment.
+    + Correctly match architecture patterns.
+
+ -- Sandro Knauß <hefee@debian.org>  Mon, 16 Dec 2024 09:33:29 +0100
+
+pkg-kde-tools (0.18.10) unstable; urgency=medium
+
+  * dh_qmldeps:
+    - Use DEB_HOST_MULTIARCH in search path to fix dh_qmldeps for cross
+      compilation.
+    - Fix run without qmldeps.optional file.
+    - Use dpkg-architecture instead of environment variable.
+
+ -- Sandro Knauß <hefee@debian.org>  Wed, 11 Dec 2024 00:12:23 +0100
+
+pkg-kde-tools (0.18.9) unstable; urgency=medium
+
+  [dh_qmldeps]:
+  * Fix detection of expected Qt version ( fix it for Qt5).
+  * Allow replacement in qmldeps.optional like in qmldeps.overrides.
+
+ -- Sandro Knauß <hefee@debian.org>  Tue, 10 Dec 2024 17:34:44 +0100
+
+pkg-kde-tools (0.18.8) unstable; urgency=medium
+
+  [ Salvo 'LtWorf' Tomaselli ]
+  * Minimal manpage for dh_qmldeps
+
+  [ Sandro Knauß ]
+  * Add d/qmldeps.optional to mark QML modules as optional (if those
+    modules exists add them as dependency, if not ignore the
+    dependency.
+
+ -- Sandro Knauß <hefee@debian.org>  Wed, 04 Dec 2024 01:12:16 +0100
+
+pkg-kde-tools (0.18.7) unstable; urgency=medium
+
+  * [dh_qmldeps]: Take Suggests into acount too.
+
+ -- Sandro Knauß <hefee@debian.org>  Mon, 25 Nov 2024 14:54:46 +0100
+
+pkg-kde-tools (0.18.6) unstable; urgency=medium
+
+  * Team upload.
+
+  * dh_qmldeps:
+    - Act only on packages, that matches arch-all/arch-any
+    builds.
+    -  Substract packages from depends, that are listed in
+    recommends.
+
+ -- Sandro Knauß <hefee@debian.org>  Mon, 18 Nov 2024 12:03:14 +0100
+
+pkg-kde-tools (0.18.5) unstable; urgency=medium
+
+  * Team upload.
+
+  * dh_qmldeps:
+    - Push all args to pkgkde-getqmldepends.
+    - Add pkgkde-getqmldepends show option to print qml
+      dependecy on stdout.
+    - Handle multiple rootPaths arguments correctly.
+
+ -- Sandro Knauß <hefee@debian.org>  Thu, 07 Nov 2024 23:26:18 +0100
+
+pkg-kde-tools (0.18.4) unstable; urgency=medium
+
+  [ Sandro Knauß ]
+  * qmldepends:
+    - Detect QML dependencies via depends in qmldir files.
+    - detect failures from all functions.
+    - Able to use apt-file to search for QML modules.
+
+ -- Sandro Knauß <hefee@debian.org>  Tue, 29 Oct 2024 23:34:06 +0100
+
+pkg-kde-tools (0.18.3) unstable; urgency=medium
+
+  * Team upload.
+  * Remove comment from kf6_flags, they prevent the flags from being applied
+    at build time because the lines contained in the file gets joined before
+    being injected into the build commands.
+
+ -- Aurélien COUDERC <coucouf@debian.org>  Sun, 20 Oct 2024 20:59:47 +0200
+
+pkg-kde-tools (0.18.2) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Aurélien COUDERC ]
+  * Readd -DCMAKE_BUILD_TYPE=Debian to kf6 buildsequence flags, it’s
+    required to activate Debian ABI manager correctly.
+
+ -- Aurélien COUDERC <coucouf@debian.org>  Wed, 16 Oct 2024 10:25:43 +0200
+
+pkg-kde-tools (0.18.1) unstable; urgency=medium
+
+  [ Sandro Knauß ]
+  * Detect imports in qmldir file.
+  * Detect qmlimportscanner in debian/tmp correctly for qt6-declarative.
+
+ -- Sandro Knauß <hefee@debian.org>  Tue, 15 Oct 2024 22:48:51 +0200
+
+pkg-kde-tools (0.18.0) unstable; urgency=medium
+
+  * Create pythonlib for dh_qmldeps.
+  * pkgkde-getqmldepends: Allow QML overrides via
+    debian/qmldepends.overrides.
+  * pkgkde-getqmldepends: fails with 1, if an error is detected.
+  * Add dh_qmldeps - a debhelper to detect runtime QML dependencies.
+  * Add qmldeps dh sequence to run dh_qmldeps.
+
+ -- Sandro Knauß <hefee@debian.org>  Sat, 12 Oct 2024 12:13:18 +0200
+
+pkg-kde-tools (0.17.5) unstable; urgency=medium
+
+  [ Sandro Knauß ]
+  * pkgkde-getqmldepends:
+    - Search also qml modules in packages, that are created.
+    -  Be able to set the package to act on.
+    - Use Qt 6 by default.
+
+ -- Sandro Knauß <hefee@debian.org>  Sun, 29 Sep 2024 02:52:11 +0200
+
+pkg-kde-tools (0.17.4) unstable; urgency=medium
+
+  [ Aaron Rainbolt ]
+  * Replace _g() function calls with g_() in pkgkde-symbolshelper.
+
+ -- Dmitry Shachnev <mitya57@debian.org>  Wed, 05 Jun 2024 09:42:47 +0300
+
+pkg-kde-tools (0.17.3) unstable; urgency=medium
+
+  * Do not automatically consider current subst as verified. This way we
+    can detect wrong substs in more cases (closes: #1072357).
+  * Add a few more tests for pkgkde-symbolshelper.
+
+ -- Dmitry Shachnev <mitya57@debian.org>  Sat, 01 Jun 2024 20:03:08 +0300
+
+pkg-kde-tools (0.17.2) unstable; urgency=medium
+
+  * Add tests for pkgkde-symbolshelper handling of int64_t and time_t.
+  * pkgkde-symbolshelper: When checking if a substitution applies, prefer
+    i386 to other architectures. This way we can make the right choice
+    between int64_t and time_t substitutions (closes: #1071279).
+  * Bump Standards-Version to 4.7.0, no changes needed.
+
+ -- Dmitry Shachnev <mitya57@debian.org>  Sat, 25 May 2024 20:28:20 +0300
+
 pkg-kde-tools (0.17.1) unstable; urgency=medium
 
   * pkgkde-symbolshelper: Update ABI definition for time_t subst.

@@ -88,7 +88,7 @@ sub initialize {
 	# Expand substitutions in the symbol name. See below.
 	if ($self->expand_substitutions(%opts) == 0) {
 	    # Redundant subst tag. Warn.
-	    warning(_g("%s: no valid substitutions, 'subst' tag is redundant"),
+	    warning(g_("%s: no valid substitutions, 'subst' tag is redundant"),
 		$self->get_symbolname());
 	}
     }
@@ -111,7 +111,7 @@ sub expand_substitutions {
 	    if (defined $subst) {
 		$substs{$subst} = $substobj->expand($opts{arch}, $val);
 		if (!defined $substs{$subst}) {
-		    error(_g("%s: unable to expand symbol substitution '%s'"), $symbol, $subst);
+		    error(g_("%s: unable to expand symbol substitution '%s'"), $symbol, $subst);
 		}
 	    } # If not defined, silently ignore.
 	}

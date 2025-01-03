@@ -6,7 +6,7 @@ Build-Depends: cmake,
                debhelper-compat (= 13),
                dpkg-dev (>= 1.22.5),
                libdpkg-perl
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Uploaders: Lisandro Damián Nicanor Pérez Meyer <lisandro@debian.org>,
            Pino Toscano <pino@debian.org>,
            Dmitry Shachnev <mitya57@debian.org>
@@ -29,6 +29,7 @@ Provides: dh-sequence-kf5,
           dh-sequence-kf6,
           dh-sequence-pkgkde-symbolshelper,
           dh-sequence-qmlcdeps,
+          dh-sequence-qmldeps,
           dh-sequence-sodeps
 Description: various packaging tools and scripts for KDE Applications
  This package contains a variety of packaging tools and build scripts that may
@@ -59,7 +60,7 @@ Description: various packaging tools and scripts for KDE Applications
   - pkgkde-override-sc-dev-latest tool for overriding Breaks of the
     kde-sc-dev-latest package;
   - pkgkde-vcs tool for performing common tasks when packaging under VCS.
-  - qmldepdends.py create a list of QML dependencies.
+  - pkgkde-getqmldepdends create a list of QML dependencies.
  .
  NOTE: since this package is cumulative, it does not depend on the packages it
  provides helpers for. I.e. you still need to explicitly build depend on
