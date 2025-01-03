@@ -1,5 +1,6 @@
 usr/bin/dh_movelibkdeinit
 usr/bin/dh_qmlcdeps
+usr/bin/dh_qmldeps
 usr/bin/dh_sameversiondep
 usr/bin/dh_sodeps
 usr/bin/pkgkde-debs2symbols
@@ -14,6 +15,7 @@ usr/bin/pkgkde-update-qt-copyright
 usr/bin/pkgkde-vcs
 usr/share/man/man1/dh_movelibkdeinit.1
 usr/share/man/man1/dh_qmlcdeps.1
+usr/share/man/man1/dh_qmldeps.1
 usr/share/man/man1/dh_sameversiondep.1
 usr/share/man/man1/dh_sodeps.1
 usr/share/man/man1/pkgkde-gensymbols.1

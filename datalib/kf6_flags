@@ -1,3 +1,2 @@
-# This should be set automatically, e.g. in extra-cmake-modules
-# -DCMAKE_INSTALL_SYSCONFDIR=/etc
+-DCMAKE_BUILD_TYPE=Debian
 -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
